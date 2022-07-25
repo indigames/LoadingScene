@@ -7,13 +7,10 @@ using UnityEngine;
 /// </summary>
 public class DownloadProgress : MonoBehaviour
 {
-
     #region Variables
-
     public int downloadProgressInput;
     public int downloadProgressOutput;
     private int cachedDownloadProgressInput;
-
 
     #endregion
 

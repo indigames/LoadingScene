@@ -21,7 +21,6 @@ public class LoadAddressableScene : MonoBehaviour
     public GameObject _camera;
     public DownloadProgress downloadProgress;
     public GameObject uiLoading;
-    public UILoadingSpinner uiSlider;
 
     #endregion
 
@@ -45,7 +44,7 @@ public class LoadAddressableScene : MonoBehaviour
     // </Summary>
     private IEnumerator DownloadScene()
     {
-        var downloadScene = Addressables.LoadSceneAsync(_sceneAsset, LoadSceneMode.Additive);
+        var downloadScene = Addressables.LoadSceneAsync(_sceneAsset, LoadSceneMode.Additive, true);
         downloadScene.Completed += SceneDownloadComplete;
         Debug.Log($"Scene{_sceneAsset.SubObjectName} Starting download");
 
@@ -55,14 +54,12 @@ public class LoadAddressableScene : MonoBehaviour
             float progress = status.Percent; //get current progress
 
             downloadProgress.downloadProgressInput = (int)(progress * 100);
-            uiSlider.SetValue(progress * 100);
-            uiSlider.loadingPercent.text = $"{(int)(progress * 100)}%";
 
             Debug.Log($"Scene{_sceneAsset.SubObjectName} Downloading {progress * 100}%...");
             yield return null;
         }
+
         Debug.Log($"Scene{_sceneAsset.SubObjectName} Download Complete");
-        uiSlider.loadingPercent.text = $"{100}%";
         downloadProgress.downloadProgressInput = 100;
     }
 
