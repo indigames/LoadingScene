@@ -13,7 +13,7 @@ public class UILoadingSpinner : MonoBehaviour
     #region Variables
 
     public Slider loadingBar;
-    
+
     public TextMeshProUGUI loadingPercent;
     public DownloadProgress downloadProgress;
 
@@ -44,17 +44,9 @@ public class UILoadingSpinner : MonoBehaviour
         UpdateProgressBar(percentComplete);
     }
 
-    public float SetValue(float value)
-    {
-        loadingBar.value = value;
-        return loadingBar.value;
-    }
-
     public void UpdateProgressBar(float progress)
     {
         loadingBar.normalizedValue = progress;
-        Debug.Log(string.Format($"Downloaded {0:P1}", progress));
-
         if (progress >= 1.0f) this.gameObject.SetActive(false);
     }
 
