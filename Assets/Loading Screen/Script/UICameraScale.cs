@@ -30,7 +30,7 @@ public class UICameraScale : MonoBehaviour
         yield return true;
         Update();
     }
-    void Update()
+    private void Update()
     {
         if (this.screenReferenceSize.x <= 0 || this.screenReferenceSize.y <= 0)
             return;

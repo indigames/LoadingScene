@@ -15,10 +15,7 @@ public class UILoadingSpinner : MonoBehaviour
     public Slider loadingBar;
 
     public TextMeshProUGUI loadingPercent;
-    public DownloadProgress downloadProgress;
 
-    private int percentComplete;
-    private int cachedPercentComplete;
 
     #endregion
 
@@ -26,29 +23,27 @@ public class UILoadingSpinner : MonoBehaviour
 
     void OnEnable()
     {
-        percentComplete = 0;
+        loadingPercent.text = "0%";
+        loadingBar.value = 0;
     }
     void Start()
     {
-        percentComplete = 0;
+        LoadAddressableScene.OnProgress.AddListener(UpdateProgressBar);
+        LoadAddressableScene.OnUIEnable.AddListener(OnActive);
     }
-
-    void Update()
+    private void UpdateProgressBar(float progress)
     {
-        if (percentComplete != downloadProgress.downloadProgressOutput)
-        {
-            loadingPercent.text = downloadProgress.downloadProgressOutput.ToString() + "%";
-            percentComplete = downloadProgress.downloadProgressOutput;
-        }
-
-        UpdateProgressBar(percentComplete);
-    }
-
-    public void UpdateProgressBar(float progress)
-    {
+        loadingPercent.text = ((int)progress * 100).ToString() + " %";
+        Debug.Log($"Progress: {progress*100}");
         loadingBar.normalizedValue = progress;
         if (progress >= 1.0f) this.gameObject.SetActive(false);
     }
+
+    private void OnActive(bool active)
+    {
+        this.gameObject.SetActive(active);
+    }
+
 
     #endregion
 }

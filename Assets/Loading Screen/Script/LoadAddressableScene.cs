@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
+using UnityEngine.Events;
+using System;
 
 /// <summary>  
 /// This class is used to load the addressable scene.
@@ -18,10 +20,9 @@ public class LoadAddressableScene : MonoBehaviour
     [SerializeField] private AssetReference _sceneAsset;
     private AsyncOperationHandle<SceneInstance> _sceneHandle;
 
-    public GameObject _camera;
-    public DownloadProgress downloadProgress;
-    public GameObject uiLoading;
-
+    public static UnityEvent<float> OnProgress;
+    public static UnityEvent<bool> OnUIEnable;
+    [SerializeField] private GameObject _uiCamera;
     #endregion
 
 
@@ -33,6 +34,8 @@ public class LoadAddressableScene : MonoBehaviour
     void Start()
     {
         StartCoroutine(DownloadScene());
+        OnProgress = new UnityEvent<float>();
+        OnUIEnable = new UnityEvent<bool>();
     }
 
     #endregion
@@ -53,14 +56,16 @@ public class LoadAddressableScene : MonoBehaviour
             var status = downloadScene.GetDownloadStatus(); // Get the status of the download
             float progress = status.Percent; //get current progress
 
-            downloadProgress.downloadProgressInput = (int)(progress * 100);
+            LoadAddressableScene.OnUIEnable?.Invoke(true);
+            LoadAddressableScene.OnProgress?.Invoke(progress);
 
             Debug.Log($"Scene{_sceneAsset.SubObjectName} Downloading {progress * 100}%...");
             yield return null;
         }
 
+        LoadAddressableScene.OnProgress?.Invoke(1);
+        LoadAddressableScene.OnUIEnable?.Invoke(false);
         Debug.Log($"Scene{_sceneAsset.SubObjectName} Download Complete");
-        downloadProgress.downloadProgressInput = 100;
     }
 
     // <Summary>
@@ -71,9 +76,9 @@ public class LoadAddressableScene : MonoBehaviour
         if (_handle.Status == AsyncOperationStatus.Succeeded)
         {
             Debug.Log($"{_handle.Result.Scene.name} is successfully loaded.");
-            _camera.SetActive(false);
-            uiLoading.SetActive(false);
+            LoadAddressableScene.OnUIEnable?.Invoke(false);
             _sceneHandle = _handle;
+            _uiCamera.SetActive(false);
 
             // StartCoroutine(UnloadScene()); // TODO: Unload the scene after it is loaded
         }
@@ -89,8 +94,8 @@ public class LoadAddressableScene : MonoBehaviour
         {
             if (op.Status == AsyncOperationStatus.Succeeded)
             {
-                _camera.SetActive(true);
-                uiLoading.SetActive(true);
+                _uiCamera.SetActive(true);
+                LoadAddressableScene.OnUIEnable?.Invoke(true);
                 Debug.Log($"{_sceneHandle.Result.Scene.name} is successfully unloaded.");
             }
         };
